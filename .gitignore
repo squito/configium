@@ -30,4 +30,4 @@ replay_pid*
 configium.iml
 
 # Secrets
-.jira_testing_token
+.jira_token.json
