@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class JiraAuth {
 
-    private static String DEFAULT_TOKEN_FILE_NAME = ".jira_token.json";
+    static String DEFAULT_TOKEN_FILE_NAME = ".jira_token.json";
 
     /**
      * Token file searched for in priority order:
@@ -58,7 +58,11 @@ public class JiraAuth {
         if (new File(file).exists()) {
             return file;
         } else {
-            return null;
+            throw new RuntimeException("No jira token file found.  Checked for '" +
+                    DEFAULT_TOKEN_FILE_NAME + "' in home dir and cwd.  Please create a jira" +
+                    "security token (eg. at " +
+                    "https://id.atlassian.com/manage-profile/security/api-tokens) and save a json" +
+                    "file with \"user\" and \"token\" fields.");
         }
     }
 
@@ -68,7 +72,7 @@ public class JiraAuth {
     }
 
     // Not a singleton just for testing purposes -- need to be abe to test w/ alternatives
-    private static class AuthHolder {
+    static class AuthHolder {
         final String user;
         final String token;
 
@@ -94,7 +98,7 @@ public class JiraAuth {
         }
     }
 
-    private static AuthHolder loadAuthFromTokenFile(String tokenFile) throws IOException {
+    static AuthHolder loadAuthFromTokenFile(String tokenFile) throws IOException {
         JsonNode j = new ObjectMapper().readTree(new File(tokenFile));
         return new AuthHolder(j.get("user").asText(), j.get("token").asText());
     }
