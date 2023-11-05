@@ -1,18 +1,18 @@
 package com.imranrashid.configium;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
-import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.function.Executable;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class JiraAuthTest {
 
+    private static final String baseInputDir = "src/test/resources/input/";
+
     @Test
     void testTokenLoading() throws Throwable {
-        String tokenFile = "src/test/resources/input/ok_token_file.json";
+        String tokenFile = baseInputDir + "ok_token_file.json";
         withSystemProp("jira.token.file", tokenFile, () -> {
             JiraAuth.AuthHolder auth = JiraAuth.loadAuthFromTokenFile(JiraAuth.findTokenFile());
             assertEquals("some_user", auth.user);
@@ -27,6 +27,16 @@ class JiraAuthTest {
             assertTrue(ex.getMessage().contains(JiraAuth.DEFAULT_TOKEN_FILE_NAME));
         });
     }
+
+    @Test
+    void testErrorMsgsOnBadTokenFile() throws Throwable {
+        withSystemProp("jira.token.file", baseInputDir + "bad_token_file.json", () -> {
+            String tokenFile = JiraAuth.findTokenFile();
+            Exception ex = assertThrows(Exception.class, () -> JiraAuth.loadAuthFromTokenFile(tokenFile));
+            assertTrue(ex.getMessage().contains("did not have 'user' field"));
+        });
+    }
+
 
     void withSystemProp(String prop, String value, Executable f) throws Throwable {
         String initialValue = System.getProperty(prop);

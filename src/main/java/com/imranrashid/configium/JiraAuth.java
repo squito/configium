@@ -100,6 +100,16 @@ public class JiraAuth {
 
     static AuthHolder loadAuthFromTokenFile(String tokenFile) throws IOException {
         JsonNode j = new ObjectMapper().readTree(new File(tokenFile));
+        if (!j.has("user")) {
+            throw new RuntimeException("Token file " + new File(tokenFile).getCanonicalPath() +
+                    " did not have 'user' field.  Expecting json file with 'user' and 'token'" +
+                    "fields");
+        }
+        if (!j.has("token")) {
+            throw new RuntimeException("Token file " + new File(tokenFile).getCanonicalPath() +
+                    " did not have 'token' field.  Expecting json file with 'user' and 'token'" +
+                    "fields");
+        }
         return new AuthHolder(j.get("user").asText(), j.get("token").asText());
     }
 }
